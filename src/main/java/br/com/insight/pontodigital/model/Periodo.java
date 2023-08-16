@@ -3,23 +3,22 @@ package main.java.br.com.insight.pontodigital.model;
 import java.util.Date;
 
 public class Periodo {
-    //teste github
-    private Date entrada;
-    private Date saida;
+    private String entrada;
+    private String saida;
 
-    public Date getEntrada() {
+    public String getEntrada() {
         return entrada;
     }
 
-    public void setEntrada(Date entrada) {
+    public void setEntrada(String entrada) {
         this.entrada = entrada;
     }
 
-    public Date getSaida() {
+    public String getSaida() {
         return saida;
     }
 
-    public void setSaida(Date saida) {
+    public void setSaida(String saida) {
         this.saida = saida;
     }
 }
