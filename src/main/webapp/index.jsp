@@ -61,7 +61,7 @@
 </form>
 
 <div class="buttons">
-    <input id="inserir" type="submit" value="Inserir Ponto" onclick="inserirHorarioTrabalho()"/>
+    <input id="inserirTabelaHorarios" type="submit" value="Inserir Ponto" onclick="inserirHorarioTrabalho('tabela-horarios')"/>
 </div>
 
 <%!
@@ -69,7 +69,7 @@
 %>
 
 
-<table id="tabela-pontos">
+<table id="tabela-horarios">
     <caption>Horário de Trabalho</caption>
     <tr>
         <th>Entrada</th>
@@ -77,34 +77,71 @@
     </tr>
 </table>
 
+<form>
+    <div>
+        <label for="entrada">Entrada: </label><br>
+        <input type="time" id="entrada2">
+    </div>
+    <div>
+        <label for="saida">Saída: </label><br>
+        <input type="time" id="saida2">
+    </div>
+</form>
+
+<div class="buttons">
+    <input id="inserirTabelaMarcacoes" type="submit" value="Inserir Ponto" onclick="inserirHorarioTrabalho('tabela-marcacoes')"/>
+</div>
+
+<table id="tabela-marcacoes">
+    <caption>Marcações</caption>
+    <tr>
+        <th>Entrada</th>
+        <th>Saída</th>
+    </tr>
+</table>
+
 <script>
-    function inserirHorarioTrabalho(){
+    function inserirHorarioTrabalho(idTabela){
         var newLine = document.createElement("tr");
-
         var col1 = document.createElement("td");
-        var entradaValue = document.getElementById("entrada").value;
-        col1.textContent = entradaValue;
-
         var col2 = document.createElement("td");
-        var saidaValue = document.getElementById("saida").value;
-        col2.textContent = saidaValue;
+        var entradaValue;
+        var saidaValue;
+        var tableRows;
 
-        if(col1.textContent.length < 5 || col2.textContent.length < 5){
+        if(idTabela === "tabela-horarios"){
+            entradaValue = document.getElementById("entrada").value;
+            col1.textContent = entradaValue;
+
+            saidaValue = document.getElementById("saida").value;
+            col2.textContent = saidaValue;
+
+            tableRows = document.querySelectorAll("#tabela-horarios tr");
+        } else {
+            entradaValue = document.getElementById("entrada2").value;
+            col1.textContent = entradaValue;
+
+            saidaValue = document.getElementById("saida2").value;
+            col2.textContent = saidaValue;
+
+            tableRows = document.querySelectorAll("#tabela-marcacoes tr");
+        }
+
+        if(entradaValue.length < 5 || saidaValue.length < 5){
             alert("É obrigatório inserir um horário de entrada e de saída!");
             return;
         }
 
         if(saidaValue <= entradaValue){
-            alert("Saída deve ocorrer após entrada!");
+            alert("Horário de saída não pode ser posterior ao horário de entrada!");
             return;
         }
 
         newLine.appendChild(col1);
         newLine.appendChild(col2);
 
-        var tabela = document.getElementById("tabela-pontos");
+        var tabela = document.getElementById(idTabela);
 
-        var tableRows = document.querySelectorAll("#tabela-pontos tr");
         for (var i = 1; i < tableRows.length; i++) {
             var existingEntrada = tableRows[i].querySelector("td:first-child").textContent; //entrada da linha atual
             var existingSaida = tableRows[i].querySelector("td:last-child").textContent; //saída da linha atual
@@ -118,18 +155,19 @@
 
             if (entradaValue < existingEntrada) { //inserindo de forma ordenada
                 tabela.insertBefore(newLine, tableRows[i]);
-                checkTableLenght(tableRows.length);
+                checkTableLenght(tabela);
                 return;
             }
         }
 
         tabela.appendChild(newLine);
-        checkTableLenght(tableRows.length);
+        checkTableLenght(tabela);
     }
 
-    function checkTableLenght(lenght){
-        if(lenght > 2){
-            document.getElementById("inserir").setAttribute("disabled", "true");
+    function checkTableLenght(tabela){
+        //verifica se é a tabela de pontos e limita a quantidade de registros se for
+        if(tabela.rows.length > 3 && tabela.id === "tabela-horarios"){
+            document.getElementById("inserirTabelaHorarios").setAttribute("disabled", "true");
         }
     }
 </script>
