@@ -1,6 +1,4 @@
-<%@ page import="main.java.br.com.insight.pontodigital.model.Periodo" %>
-<%@ page import="java.util.Date" %>
-<%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="br.com.insight.pontodigital.model.Ponto" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html>
@@ -65,7 +63,7 @@
 </div>
 
 <%!
-    Periodo p = new Periodo();
+    Ponto p = new Ponto();
 %>
 
 
