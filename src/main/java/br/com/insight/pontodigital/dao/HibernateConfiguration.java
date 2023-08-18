@@ -10,12 +10,11 @@ public class HibernateConfiguration {
 
     static {
         try {
-            // Create the SessionFactory from standard (hibernate.cfg.xml)
-            // config file.
+            // Cria a sessão de acordo com o arquivo de configuração (hibernate.cfg.xml)
             sessionFactory = new Configuration().configure().buildSessionFactory();
         } catch (HibernateException ex) {
-            // Log the exception.
-            System.err.println("Initial SessionFactory creation failed." + ex);
+            // Dispara a exceção em caso de erros
+            System.err.println("Erro ao criar sessão!" + ex);
             throw new ExceptionInInitializerError(ex);
         }
     }

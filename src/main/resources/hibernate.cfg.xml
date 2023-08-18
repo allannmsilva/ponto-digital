@@ -14,6 +14,6 @@
             org.hibernate.hql.internal.classic.ClassicQueryTranslatorFactory
         </property>
         <property name="hibernate.hbm2ddl.auto">create</property>
-        <mapping class="br.com.insight.pontodigital.model.Ponto"/>
+        <mapping class="br.com.insight.pontodigital.bean.PontoBean"/>
     </session-factory>
 </hibernate-configuration>
