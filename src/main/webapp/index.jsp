@@ -1,9 +1,8 @@
 <%@ page import="br.com.insight.pontodigital.bean.PontoBean" %>
 <%@ page import="java.util.List" %>
 <%@ page import="br.com.insight.pontodigital.dao.PontoDAO" %>
-<%@ page import="java.util.stream.Collectors" %>
-<%@ page import="java.util.Collections" %>
 <%@ page import="java.util.Comparator" %>
+<%@ page import="java.util.ArrayList" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html>
@@ -61,9 +60,11 @@
 <%
     List<PontoBean> horarios = PontoDAO.listHorarios;
     List<PontoBean> marcacoes = PontoDAO.listMarcacoes;
+    List<PontoBean> atrasos = new ArrayList<>();
+    List<PontoBean> horasExtras = new ArrayList<>();
     int size = 0;
-    int indexHorario = 0;
-    int indexMarcacao = 0;
+    int indexHorario = 1;
+    int indexMarcacao = 1;
     if (horarios != null) {
         size = horarios.size();
         horarios.sort(Comparator.comparing(PontoBean::getEntrada));
@@ -71,11 +72,52 @@
     if (marcacoes != null) {
         marcacoes.sort(Comparator.comparing(PontoBean::getEntrada));
     }
+
+    if (horarios != null && marcacoes != null) {
+        for (PontoBean horario : horarios) {
+            int indexAtual = horarios.indexOf(horario);
+
+            for (PontoBean marcacao : marcacoes) {
+                if (!horario.getEntrada().equals(marcacao.getEntrada()) || !horario.getSaida().equals(marcacao.getSaida())) {
+                    if (marcacao.getSaida().compareTo(horario.getEntrada()) <= 0) {
+                        horasExtras.add(marcacao);
+                    } else if (marcacao.getEntrada().compareTo(horario.getEntrada()) < 0) {
+                        if (marcacao.getSaida().compareTo(horario.getSaida()) < 0) {
+                            PontoBean atraso = new PontoBean(marcacao.getSaida(), horario.getSaida(), 3L);
+                            atrasos.add(atraso);
+                        }
+                        PontoBean horaExtra = new PontoBean(marcacao.getEntrada(), horario.getEntrada(), 4L);
+                        horasExtras.add(horaExtra);
+                    }
+
+                    if (marcacao.getEntrada().compareTo(horario.getEntrada()) < 0 && marcacao.getSaida().compareTo(horario.getSaida()) > 0) {
+                        PontoBean horaExtra = new PontoBean(marcacao.getEntrada(), horario.getEntrada(), 4L);
+                        horasExtras.add(horaExtra);
+
+                        if (horarios.size() - 1 > indexAtual) {
+                            PontoBean proximoHorario = horarios.get(indexAtual + 1);
+                            if (marcacao.getSaida().compareTo(proximoHorario.getEntrada()) > 0) {
+                                horaExtra = new PontoBean(marcacao.getSaida(), proximoHorario.getEntrada());
+                                horasExtras.add(horaExtra);
+                            }
+                        } else {
+                            horaExtra = new PontoBean(horario.getSaida(), marcacao.getSaida(), 4L);
+                            horasExtras.add(horaExtra);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    atrasos.sort(Comparator.comparing(PontoBean::getEntrada));
+    horasExtras.sort(Comparator.comparing(PontoBean::getEntrada));
 %>
 
 
 <div class="form-table">
     <div class="table-responsive">
+        <h4 class="text-center mt-4">Horários de Trabalho</h4>
         <form method="post" action="horarios">
             <div class="campos">
                 <div class="mb-3">
@@ -92,7 +134,6 @@
         </form>
 
         <table class="table table-hover align-middle" id="tabela-horarios">
-            <h4 class="text-center mt-4">Horários de Trabalho</h4>
             <thead>
             <tr>
                 <th>Entrada</th>
@@ -111,9 +152,11 @@
                 </td>
                 <td><%= horario.getSaida()%>
                 </td>
-                <td><input type="button" class="btn btn-outline-warning btn-sm" value="Editar"
-                           onclick="editarHorario(<%= indexHorario %>)"/></td>
-                <td><input type="button" class="btn btn-outline-danger btn-sm" value="Excluir"/></td>
+                <td><input type="button" class="btn btn-outline-warning btn-sm" value="Editar" id="editar-horario"
+                           onclick="editar(<%= indexHorario %>, 1)"/></td>
+                <td><input type="button" class="btn btn-outline-danger btn-sm" value="Excluir" id="excluir-horario"
+                           onclick="remover(<%=indexHorario%>, 1)"/>
+                </td>
             </tr>
             </tbody>
             <%
@@ -125,6 +168,7 @@
     </div>
 
     <div class="table-responsive">
+        <h4 class="text-center mt-4">Marcações Feitas</h4>
         <form method="post" action="marcacoes">
             <div class="campos">
                 <div class="mb-3">
@@ -142,7 +186,6 @@
 
         <table class="table table-hover align-middle" id="tabela-marcacoes">
             <thead>
-            <h4 class="text-center mt-4">Marcações Feitas</h4>
             <tr>
                 <th>Entrada</th>
                 <th>Saída</th>
@@ -155,22 +198,77 @@
                     for (PontoBean marcacao : marcacoes) {
             %>
             <tbody>
-            <tr>
+            <tr id="linha-marcacao-<%=indexMarcacao%>">
                 <td><%= marcacao.getEntrada()%>
                 </td>
                 <td><%= marcacao.getSaida()%>
                 </td>
-                <td><input type="button" class="btn btn-outline-warning btn-sm" value="Editar"/></td>
-                <td><input type="button" class="btn btn-outline-danger btn-sm" value="Excluir"/></td>
+                <td><input type="button" class="btn btn-outline-warning btn-sm" value="Editar"
+                           onclick="editar(<%=indexMarcacao%>, 2)"/></td>
+                <td><input type="button" class="btn btn-outline-danger btn-sm" value="Excluir"
+                           onclick="remover(<%=indexMarcacao%>, 2)"/></td>
             </tr>
             </tbody>
             <%
+                        indexMarcacao++;
                     }
                 }
             %>
         </table>
     </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle" id="tabela-atrasos">
+            <h4 class="text-center mt-4">Atrasos</h4>
+            <thead>
+            <tr>
+                <th>Entrada</th>
+                <th>Saída</th>
+            </tr>
+            <thead>
+                <%
+                for (PontoBean atraso : atrasos) {
+            %>
+            <tbody>
+            <tr>
+                <td><%=atraso.getEntrada()%>
+                </td>
+                <td><%=atraso.getSaida()%>
+                </td>
+            </tr>
+            </tbody>
+            <%
+                }
+            %>
+        </table>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle" id="tabela-hora-extra">
+            <h4 class="text-center mt-4">Hora Extra</h4>
+            <thead>
+            <tr>
+                <th>Entrada</th>
+                <th>Saída</th>
+            </tr>
+            <thead>
+                <%
+                for (PontoBean he : horasExtras) {
+            %>
+            <tbody>
+            <tr id="linha-horario-<%=indexHorario%>">
+                <td><%=he.getEntrada()%>
+                </td>
+                <td><%=he.getSaida()%>
+                </td>
+            </tr>
+            <%
+                }
+            %>
+            </tbody>
+        </table>
+    </div>
 </div>
+
 
 <script>
     function validaTabela(idTabela) {
@@ -198,7 +296,7 @@
             return;
         }
 
-        for (var i = 1; i <= tableRows.length; i++) {
+        for (var i = 1; i < tableRows.length; i++) {
             var existingEntrada = tableRows[i].querySelector("td:first-child").textContent; //entrada da linha atual
             var existingSaida = tableRows[i].querySelector("td:nth-child(2)").textContent; //saída da linha atual
 
@@ -211,40 +309,156 @@
         }
     }
 
-    function editarHorario(index) {
-        var linha = document.getElementById("linha-horario-" + index);
-        var oldEntrada = linha.querySelector("td:nth-child(1)");
-        var oldSaida = linha.querySelector("td:nth-child(2)");
+    function editar(index, tipoTabela) {
+        var linha;
 
-        var newEntrada = prompt("Digite o novo horário de entrada:", oldEntrada.textContent);
-        var newSaida = prompt("Digite o novo horário de saída:", oldSaida.textContent);
-
-        if (newEntrada >= newSaida) {
-            alert("Horário de saída não pode ser posterior ao horário de entrada!");
-            return;
+        if (tipoTabela === 1) {
+            linha = document.getElementById("linha-horario-" + index);
+        } else {
+            linha = document.getElementById("linha-marcacao-" + index);
         }
+        var oldEntrada = linha.querySelector("td:nth-child(1)");
+        var oldEntradaTime = oldEntrada.textContent;
+        var oldSaida = linha.querySelector("td:nth-child(2)");
+        var oldSaidaTime = oldSaida.textContent;
+        var btnEditar = linha.querySelector("td:nth-child(3) input");
 
-        var tableRows = document.querySelectorAll("#tabela-horarios tr");
+        var newInputEntrada = document.createElement("input");
+        newInputEntrada.type = "time";
+        newInputEntrada.className = "form-control";
+        newInputEntrada.value = oldEntradaTime.trim();
 
-        for (var i = 1; i <= tableRows.length; i++) {
-            var existingEntrada = tableRows[i].querySelector("td:first-child").textContent; //entrada da linha atual
-            var existingSaida = tableRows[i].querySelector("td:nth-child(2)").textContent; //saída da linha atual
+        var newInputSaida = document.createElement("input");
+        newInputSaida.type = "time";
+        newInputSaida.className = "form-control";
+        newInputSaida.value = oldSaidaTime.trim();
 
-            if (i !== index && (newEntrada >= existingEntrada && newEntrada <= existingSaida) || //verificando entrada
-                (newSaida >= existingEntrada && newSaida <= existingSaida) || //verificando saída
-                (newEntrada <= existingEntrada && newSaida >= existingSaida)) { //verificando entrada e saída
-                alert("Este período já foi registrado!");
+        oldEntrada.textContent = "";
+        oldEntrada.appendChild(newInputEntrada);
+        oldSaida.textContent = "";
+        oldSaida.appendChild(newInputSaida);
+
+        var btnSalvar = document.createElement("input");
+        btnSalvar.type = "button";
+        btnSalvar.value = "Salvar";
+        btnSalvar.className = "btn btn-sm btn-success";
+        btnSalvar.id = "btn-salvar";
+        btnEditar.replaceWith(btnSalvar);
+
+        btnSalvar.addEventListener("click", function () {
+            var newEntrada = newInputEntrada.value;
+            var newSaida = newInputSaida.value;
+
+            if (newEntrada >= newSaida) {
+                alert("Horário de saída não pode ser posterior ao horário de entrada!");
+                oldEntrada.removeChild(newInputEntrada);
+                oldSaida.removeChild(newInputSaida);
+                btnSalvar.replaceWith(btnEditar);
+                location.reload();
                 return;
             }
-        }
 
-        <%
-//            if(horarios != null){
-//                horarios.get(indexHorario);
-//            }
-        %>
-        oldEntrada.textContent = newEntrada;
-        oldSaida.textContent = newSaida;
+            var tableRows;
+
+            if (tipoTabela === 1) {
+                tableRows = document.querySelectorAll("#tabela-horarios tr");
+            } else {
+                tableRows = document.querySelectorAll("#tabela-marcacoes tr");
+            }
+
+            for (var i = 1; i < tableRows.length; i++) {
+                if (i !== index) {
+                    console.log("i:", i);
+                    console.log("index:", index);
+                    var existingEntrada = tableRows[i].querySelector("td:first-child").textContent; //entrada da linha atual
+                    var existingSaida = tableRows[i].querySelector("td:nth-child(2)").textContent; //saída da linha atual
+
+                    if ((newEntrada >= existingEntrada && newEntrada <= existingSaida) || //verificando entrada
+                        (newSaida >= existingEntrada && newSaida <= existingSaida) || //verificando saída
+                        (newEntrada <= existingEntrada && newSaida >= existingSaida)) { //verificando entrada e saída
+                        alert("Este período já foi registrado!");
+                        oldEntrada.removeChild(newInputEntrada);
+                        oldSaida.removeChild(newInputSaida);
+                        btnSalvar.replaceWith(btnEditar);
+                        location.reload();
+                        return;
+                    }
+                }
+            }
+
+            var data = {
+                entrada: newEntrada,
+                saida: newSaida
+            };
+
+            if (tipoTabela === 1) {
+                fetch("horarios?index=" + index, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                }).then(response => {
+                    location.reload();
+                }).catch(error => {
+                    oldEntrada.removeChild(newInputEntrada);
+                    oldSaida.removeChild(newInputSaida);
+                    btnSalvar.replaceWith(btnEditar);
+                    console.error("Erro ao atualizar registro:", error);
+                });
+            } else {
+                fetch("marcacoes?index=" + index, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                }).then(response => {
+                    location.reload();
+                }).catch(error => {
+                    oldEntrada.removeChild(newInputEntrada);
+                    oldSaida.removeChild(newInputSaida);
+                    btnSalvar.replaceWith(btnEditar);
+                    console.error("Erro ao atualizar registro:", error);
+                });
+            }
+
+
+            oldEntrada.removeChild(newInputEntrada);
+            oldSaida.removeChild(newInputSaida);
+            btnSalvar.replaceWith(btnEditar);
+        })
+    }
+
+    function remover(index, tipoTabela) {
+        if (confirm("Tem certeza que deseja excluir esse ponto?")) {
+            if (tipoTabela === 1) {
+                fetch("horarios", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(index),
+                }).then(response => {
+                    location.reload();
+                }).catch(error => {
+                    console.error("Erro ao excluir linha:", error);
+                });
+                return;
+            }
+
+            fetch("marcacoes", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(index),
+            }).then(response => {
+                location.reload();
+            }).catch(error => {
+                console.error("Erro ao excluir linha:", error);
+            });
+        }
     }
 </script>
 
