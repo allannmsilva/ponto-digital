@@ -75,34 +75,80 @@
 
     if (horarios != null && marcacoes != null) {
         for (PontoBean horario : horarios) {
-            int indexAtual = horarios.indexOf(horario);
-
+            int indexAtualH = horarios.indexOf(horario);
             for (PontoBean marcacao : marcacoes) {
-                if (!horario.getEntrada().equals(marcacao.getEntrada()) || !horario.getSaida().equals(marcacao.getSaida())) {
-                    if (marcacao.getSaida().compareTo(horario.getEntrada()) <= 0) {
-                        horasExtras.add(marcacao);
-                    } else if (marcacao.getEntrada().compareTo(horario.getEntrada()) < 0) {
+                int indexAtualM = marcacoes.indexOf(marcacao);
+                if (horarios.size() > 1) {
+                    if (horarios.size() - 1 > indexAtualH) {
+                        PontoBean proximoHorario = horarios.get(indexAtualH + 1);
+                        if (marcacao.getEntrada().compareTo(horario.getEntrada()) < 0) {
+                            PontoBean horaExtra = new PontoBean(marcacao.getEntrada(), horario.getEntrada(), 4L);
+                            horasExtras.add(horaExtra);
+                        }
+                        if (marcacao.getSaida().compareTo(horario.getSaida()) > 0 && marcacao.getSaida().compareTo(proximoHorario.getEntrada()) < 0) {
+                            PontoBean horaExtra = new PontoBean(horario.getSaida(), marcacao.getSaida(), 4L);
+                            horasExtras.add(horaExtra);
+                        }
+                        if (marcacao.getSaida().compareTo(horario.getSaida()) > 0 && marcacao.getSaida().compareTo(proximoHorario.getEntrada()) > 0 && marcacao.getEntrada().compareTo(horario.getSaida()) < 0) {
+                            PontoBean horaExtra = new PontoBean(horario.getSaida(), proximoHorario.getEntrada(), 4L);
+                            horasExtras.add(horaExtra);
+                        }
+                    } else {
+                        if (marcacao.getSaida().compareTo(horario.getSaida()) > 0 && marcacao.getEntrada().compareTo(horario.getSaida()) < 0) {
+                            PontoBean horaExtra = new PontoBean(horario.getSaida(), marcacao.getSaida(), 4L);
+                            horasExtras.add(horaExtra);
+                        }
+                    }
+                    if (marcacao.getEntrada().compareTo(horario.getEntrada()) > 0 && marcacao.getEntrada().compareTo(horario.getSaida()) < 0) {
+                        PontoBean atraso = new PontoBean(horario.getEntrada(), marcacao.getEntrada());
+                        atrasos.add(atraso);
+                    }
+                    if (marcacao.getSaida().compareTo(horario.getSaida()) < 0 && marcacao.getSaida().compareTo(horario.getEntrada()) > 0) {
+                        PontoBean atraso = new PontoBean(marcacao.getSaida(), horario.getSaida());
+                        atrasos.add(atraso);
+                    }
+                } else {
+                    if (marcacoes.size() > 1) {
+                        if (marcacoes.size() - 1 > indexAtualM) {
+                            if (marcacao.getEntrada().compareTo(horario.getEntrada()) < 0) {
+                                PontoBean horaExtra = new PontoBean(marcacao.getEntrada(), horario.getEntrada(), 4L);
+                                horasExtras.add(horaExtra);
+                            }
+                            if (marcacao.getSaida().compareTo(horario.getSaida()) > 0) {
+                                PontoBean horaExtra = new PontoBean(horario.getSaida(), marcacao.getSaida(), 4L);
+                                horasExtras.add(horaExtra);
+                            }
+                            PontoBean proximaMarcacao = marcacoes.get(indexAtualM + 1);
+                            if (marcacao.getEntrada().compareTo(horario.getEntrada()) > 0 && proximaMarcacao.getEntrada().compareTo(horario.getEntrada()) > 0) {
+                                PontoBean atraso = new PontoBean(horario.getEntrada(), marcacao.getEntrada(), 3L);
+                                atrasos.add(atraso);
+                            }
+                            if (marcacao.getSaida().compareTo(horario.getSaida()) < 0) {
+                                PontoBean atraso;
+                                if (proximaMarcacao.getEntrada().compareTo(horario.getSaida()) < 0 && proximaMarcacao.getEntrada().compareTo(marcacao.getSaida()) > 0) {
+                                    atraso = new PontoBean(marcacao.getSaida(), proximaMarcacao.getEntrada(), 3L);
+                                } else {
+                                    atraso = new PontoBean(marcacao.getSaida(), horario.getSaida(), 3L);
+                                }
+                                atrasos.add(atraso);
+                            }
+                        }
+                    } else {
+                        if (marcacao.getEntrada().compareTo(horario.getEntrada()) < 0) {
+                            PontoBean horaExtra = new PontoBean(marcacao.getEntrada(), horario.getEntrada(), 4L);
+                            horasExtras.add(horaExtra);
+                        }
+                        if (marcacao.getSaida().compareTo(horario.getSaida()) > 0) {
+                            PontoBean horaExtra = new PontoBean(horario.getSaida(), marcacao.getSaida(), 4L);
+                            horasExtras.add(horaExtra);
+                        }
+                        if (marcacao.getEntrada().compareTo(horario.getEntrada()) > 0) {
+                            PontoBean atraso = new PontoBean(horario.getEntrada(), marcacao.getEntrada(), 3L);
+                            atrasos.add(atraso);
+                        }
                         if (marcacao.getSaida().compareTo(horario.getSaida()) < 0) {
                             PontoBean atraso = new PontoBean(marcacao.getSaida(), horario.getSaida(), 3L);
                             atrasos.add(atraso);
-                        }
-                        PontoBean horaExtra = new PontoBean(marcacao.getEntrada(), horario.getEntrada(), 4L);
-                        horasExtras.add(horaExtra);
-                    }
-
-                    if (marcacao.getEntrada().compareTo(horario.getEntrada()) < 0 && marcacao.getSaida().compareTo(horario.getSaida()) > 0) {
-                        PontoBean horaExtra = new PontoBean(marcacao.getEntrada(), horario.getEntrada(), 4L);
-                        horasExtras.add(horaExtra);
-
-                        if (horarios.size() - 1 > indexAtual) {
-                            PontoBean proximoHorario = horarios.get(indexAtual + 1);
-                            if (marcacao.getSaida().compareTo(proximoHorario.getEntrada()) > 0) {
-                                horaExtra = new PontoBean(marcacao.getSaida(), proximoHorario.getEntrada());
-                                horasExtras.add(horaExtra);
-                            }
-                        } else {
-                            horaExtra = new PontoBean(horario.getSaida(), marcacao.getSaida(), 4L);
-                            horasExtras.add(horaExtra);
                         }
                     }
                 }
