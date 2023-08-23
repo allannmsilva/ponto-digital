@@ -76,80 +76,60 @@
     if (horarios != null && marcacoes != null) {
         for (PontoBean horario : horarios) {
             int indexAtualH = horarios.indexOf(horario);
+            int nIndicesH = horarios.size() - 1;
             for (PontoBean marcacao : marcacoes) {
                 int indexAtualM = marcacoes.indexOf(marcacao);
-                if (horarios.size() > 1) {
-                    if (horarios.size() - 1 > indexAtualH) {
-                        PontoBean proximoHorario = horarios.get(indexAtualH + 1);
-                        if (marcacao.getEntrada().compareTo(horario.getEntrada()) < 0) {
-                            PontoBean horaExtra = new PontoBean(marcacao.getEntrada(), horario.getEntrada(), 4L);
-                            horasExtras.add(horaExtra);
+                int nIndicesM = marcacoes.size() - 1;
+                PontoBean marcacaoAnterior;
+                PontoBean proximaMarcacao;
+                if (nIndicesH < 2 && nIndicesM < 2) {
+                    if (horario.getEntrada().compareTo(marcacao.getSaida()) > 0 || horario.getSaida().compareTo(marcacao.getEntrada()) < 0) {
+                        PontoBean pb = new PontoBean(horario.getEntrada(), horario.getSaida(), 3L);
+                        atrasos.add(pb);
+                    }
+                }
+                if (nIndicesH < 2) {
+                    if (nIndicesM > indexAtualM && indexAtualM > 0) {
+                        proximaMarcacao = marcacoes.get(indexAtualM + 1);
+                        marcacaoAnterior = marcacoes.get(indexAtualM - 1);
+                        if (marcacao.getEntrada().compareTo(horario.getEntrada()) > 0 && marcacao.getSaida().compareTo(horario.getSaida()) < 0 && proximaMarcacao.getEntrada().compareTo(horario.getSaida()) > 0) {
+                            PontoBean pb1 = new PontoBean(horario.getEntrada(), marcacao.getEntrada(), 3L);
+                            PontoBean pb2 = new PontoBean(marcacao.getSaida(), horario.getSaida(), 3L);
+                            atrasos.add(pb1);
+                            atrasos.add(pb2);
                         }
-                        if (marcacao.getSaida().compareTo(horario.getSaida()) > 0 && marcacao.getSaida().compareTo(proximoHorario.getEntrada()) < 0) {
-                            PontoBean horaExtra = new PontoBean(horario.getSaida(), marcacao.getSaida(), 4L);
-                            horasExtras.add(horaExtra);
-                        }
-                        if (marcacao.getSaida().compareTo(horario.getSaida()) > 0 && marcacao.getSaida().compareTo(proximoHorario.getEntrada()) > 0 && marcacao.getEntrada().compareTo(horario.getSaida()) < 0) {
-                            PontoBean horaExtra = new PontoBean(horario.getSaida(), proximoHorario.getEntrada(), 4L);
-                            horasExtras.add(horaExtra);
-                        }
-                    } else {
-                        if (marcacao.getSaida().compareTo(horario.getSaida()) > 0 && marcacao.getEntrada().compareTo(horario.getSaida()) < 0) {
-                            PontoBean horaExtra = new PontoBean(horario.getSaida(), marcacao.getSaida(), 4L);
-                            horasExtras.add(horaExtra);
+                        if (marcacao.getEntrada().compareTo(horario.getEntrada()) > 0 && marcacao.getSaida().compareTo(horario.getSaida()) < 0 && proximaMarcacao.getEntrada().compareTo(horario.getSaida()) < 0 && marcacaoAnterior.getSaida().compareTo(horario.getSaida()) < 0) {
+                            PontoBean pb1 = new PontoBean(marcacaoAnterior.getSaida(), marcacao.getEntrada(), 3L);
+                            PontoBean pb2 = new PontoBean(marcacao.getSaida(), proximaMarcacao.getEntrada(), 3L);
+                            atrasos.add(pb1);
+                            atrasos.add(pb2);
                         }
                     }
-                    if (marcacao.getEntrada().compareTo(horario.getEntrada()) > 0 && marcacao.getEntrada().compareTo(horario.getSaida()) < 0) {
-                        PontoBean atraso = new PontoBean(horario.getEntrada(), marcacao.getEntrada());
-                        atrasos.add(atraso);
+                }
+                if (indexAtualH < 1 && indexAtualM < 1) {
+                    if (marcacao.getEntrada().compareTo(horario.getEntrada()) > 0 && marcacao.getSaida().equals(horario.getSaida())) {
+                        PontoBean pb = new PontoBean(horario.getEntrada(), marcacao.getEntrada(), 3L);
+                        atrasos.add(pb);
                     }
-                    if (marcacao.getSaida().compareTo(horario.getSaida()) < 0 && marcacao.getSaida().compareTo(horario.getEntrada()) > 0) {
-                        PontoBean atraso = new PontoBean(marcacao.getSaida(), horario.getSaida());
-                        atrasos.add(atraso);
+                    if (marcacao.getSaida().compareTo(horario.getSaida()) < 0 && marcacao.getEntrada().equals(horario.getEntrada())) {
+                        PontoBean pb = new PontoBean(marcacao.getSaida(), horario.getSaida(), 3L);
+                        atrasos.add(pb);
                     }
-                } else {
-                    if (marcacoes.size() > 1) {
-                        if (marcacoes.size() - 1 > indexAtualM) {
-                            if (marcacao.getEntrada().compareTo(horario.getEntrada()) < 0) {
-                                PontoBean horaExtra = new PontoBean(marcacao.getEntrada(), horario.getEntrada(), 4L);
-                                horasExtras.add(horaExtra);
-                            }
-                            if (marcacao.getSaida().compareTo(horario.getSaida()) > 0) {
-                                PontoBean horaExtra = new PontoBean(horario.getSaida(), marcacao.getSaida(), 4L);
-                                horasExtras.add(horaExtra);
-                            }
-                            PontoBean proximaMarcacao = marcacoes.get(indexAtualM + 1);
-                            if (marcacao.getEntrada().compareTo(horario.getEntrada()) > 0 && proximaMarcacao.getEntrada().compareTo(horario.getEntrada()) > 0) {
-                                PontoBean atraso = new PontoBean(horario.getEntrada(), marcacao.getEntrada(), 3L);
-                                atrasos.add(atraso);
-                            }
-                            if (marcacao.getSaida().compareTo(horario.getSaida()) < 0) {
-                                PontoBean atraso;
-                                if (proximaMarcacao.getEntrada().compareTo(horario.getSaida()) < 0 && proximaMarcacao.getEntrada().compareTo(marcacao.getSaida()) > 0) {
-                                    atraso = new PontoBean(marcacao.getSaida(), proximaMarcacao.getEntrada(), 3L);
-                                } else {
-                                    atraso = new PontoBean(marcacao.getSaida(), horario.getSaida(), 3L);
-                                }
-                                atrasos.add(atraso);
-                            }
-                        }
-                    } else {
-                        if (marcacao.getEntrada().compareTo(horario.getEntrada()) < 0) {
-                            PontoBean horaExtra = new PontoBean(marcacao.getEntrada(), horario.getEntrada(), 4L);
-                            horasExtras.add(horaExtra);
-                        }
-                        if (marcacao.getSaida().compareTo(horario.getSaida()) > 0) {
-                            PontoBean horaExtra = new PontoBean(horario.getSaida(), marcacao.getSaida(), 4L);
-                            horasExtras.add(horaExtra);
-                        }
-                        if (marcacao.getEntrada().compareTo(horario.getEntrada()) > 0) {
-                            PontoBean atraso = new PontoBean(horario.getEntrada(), marcacao.getEntrada(), 3L);
-                            atrasos.add(atraso);
-                        }
-                        if (marcacao.getSaida().compareTo(horario.getSaida()) < 0) {
-                            PontoBean atraso = new PontoBean(marcacao.getSaida(), horario.getSaida(), 3L);
-                            atrasos.add(atraso);
-                        }
+                    if (marcacao.getEntrada().compareTo(horario.getEntrada()) > 0 && marcacao.getSaida().compareTo(horario.getSaida()) < 0) {
+                        PontoBean pb1 = new PontoBean(horario.getEntrada(), marcacao.getEntrada(), 3L);
+                        PontoBean pb2 = new PontoBean(marcacao.getSaida(), horario.getSaida(), 3L);
+                        atrasos.add(pb1);
+                        atrasos.add(pb2);
+                    }
+                    if (marcacao.getEntrada().compareTo(horario.getSaida()) >= 0) {
+                        PontoBean pb = new PontoBean(marcacao.getEntrada(), marcacao.getSaida(), 4L);
+                        horasExtras.add(pb);
+                    }
+                }
+                if (indexAtualH < 1) {
+                    if (marcacao.getEntrada().compareTo(horario.getEntrada()) < 0 && marcacao.getSaida().compareTo(horario.getEntrada()) <= 0) {
+                        PontoBean pb = new PontoBean(marcacao.getEntrada(), marcacao.getSaida(), 4L);
+                        horasExtras.add(pb);
                     }
                 }
             }
@@ -337,7 +317,7 @@
             return;
         }
 
-        if (saidaValue <= entradaValue) {
+        if (saidaValue <= entradaValue && saidaValue >= '12:00') {
             alert("Horário de saída não pode ser posterior ao horário de entrada!");
             return;
         }
@@ -346,7 +326,12 @@
             var existingEntrada = tableRows[i].querySelector("td:first-child").textContent; //entrada da linha atual
             var existingSaida = tableRows[i].querySelector("td:nth-child(2)").textContent; //saída da linha atual
 
-            if ((entradaValue >= existingEntrada && entradaValue <= existingSaida) || //verificando entrada
+            if (existingEntrada > existingSaida) {
+                if (entradaValue > existingEntrada || entradaValue > saidaValue) {
+                    alert("Este período já foi registrado!");
+                    return;
+                }
+            } else if ((entradaValue >= existingEntrada && entradaValue <= existingSaida) || //verificando entrada
                 (saidaValue >= existingEntrada && saidaValue <= existingSaida) || //verificando saída
                 (entradaValue <= existingEntrada && saidaValue >= existingSaida)) { //verificando entrada e saída
                 alert("Este período já foi registrado!");
@@ -392,88 +377,98 @@
         btnEditar.replaceWith(btnSalvar);
 
         btnSalvar.addEventListener("click", function () {
-            var newEntrada = newInputEntrada.value;
-            var newSaida = newInputSaida.value;
+                var newEntrada = newInputEntrada.value;
+                var newSaida = newInputSaida.value;
 
-            if (newEntrada >= newSaida) {
-                alert("Horário de saída não pode ser posterior ao horário de entrada!");
-                oldEntrada.removeChild(newInputEntrada);
-                oldSaida.removeChild(newInputSaida);
-                btnSalvar.replaceWith(btnEditar);
-                location.reload();
-                return;
-            }
+                if (newEntrada >= newSaida && newSaida >= '12:00') {
+                    alert("Horário de saída não pode ser posterior ao horário de entrada!");
+                    oldEntrada.removeChild(newInputEntrada);
+                    oldSaida.removeChild(newInputSaida);
+                    btnSalvar.replaceWith(btnEditar);
+                    location.reload();
+                    return;
+                }
 
-            var tableRows;
+                var tableRows;
 
-            if (tipoTabela === 1) {
-                tableRows = document.querySelectorAll("#tabela-horarios tr");
-            } else {
-                tableRows = document.querySelectorAll("#tabela-marcacoes tr");
-            }
+                if (tipoTabela === 1) {
+                    tableRows = document.querySelectorAll("#tabela-horarios tr");
+                } else {
+                    tableRows = document.querySelectorAll("#tabela-marcacoes tr");
+                }
 
-            for (var i = 1; i < tableRows.length; i++) {
-                if (i !== index) {
-                    console.log("i:", i);
-                    console.log("index:", index);
-                    var existingEntrada = tableRows[i].querySelector("td:first-child").textContent; //entrada da linha atual
-                    var existingSaida = tableRows[i].querySelector("td:nth-child(2)").textContent; //saída da linha atual
+                for (var i = 1; i < tableRows.length; i++) {
+                    if (i !== index) {
+                        console.log("i:", i);
+                        console.log("index:", index);
+                        var existingEntrada = tableRows[i].querySelector("td:first-child").textContent; //entrada da linha atual
+                        var existingSaida = tableRows[i].querySelector("td:nth-child(2)").textContent; //saída da linha atual
 
-                    if ((newEntrada >= existingEntrada && newEntrada <= existingSaida) || //verificando entrada
-                        (newSaida >= existingEntrada && newSaida <= existingSaida) || //verificando saída
-                        (newEntrada <= existingEntrada && newSaida >= existingSaida)) { //verificando entrada e saída
-                        alert("Este período já foi registrado!");
+                        if (existingEntrada > existingSaida) {
+                            if (newEntrada > existingEntrada || newEntrada > newSaida) {
+                                alert("Este período já foi registrado!");
+                                oldEntrada.removeChild(newInputEntrada);
+                                oldSaida.removeChild(newInputSaida);
+                                btnSalvar.replaceWith(btnEditar);
+                                location.reload();
+                                return;
+                            }
+                        } else if ((newEntrada >= existingEntrada && newEntrada <= existingSaida) || //verificando entrada
+                            (newSaida >= existingEntrada && newSaida <= existingSaida) || //verificando saída
+                            (newEntrada <= existingEntrada && newSaida >= existingSaida)) { //verificando entrada e saída
+                            alert("Este período já foi registrado!");
+                            oldEntrada.removeChild(newInputEntrada);
+                            oldSaida.removeChild(newInputSaida);
+                            btnSalvar.replaceWith(btnEditar);
+                            location.reload();
+                            return;
+                        }
+                    }
+                }
+
+                var data = {
+                    entrada: newEntrada,
+                    saida: newSaida
+                };
+
+                if (tipoTabela === 1) {
+                    fetch("horarios?index=" + index, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(data)
+                    }).then(response => {
+                        location.reload();
+                    }).catch(error => {
                         oldEntrada.removeChild(newInputEntrada);
                         oldSaida.removeChild(newInputSaida);
                         btnSalvar.replaceWith(btnEditar);
+                        console.error("Erro ao atualizar registro:", error);
+                    });
+                } else {
+                    fetch("marcacoes?index=" + index, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(data)
+                    }).then(response => {
                         location.reload();
-                        return;
-                    }
+                    }).catch(error => {
+                        oldEntrada.removeChild(newInputEntrada);
+                        oldSaida.removeChild(newInputSaida);
+                        btnSalvar.replaceWith(btnEditar);
+                        console.error("Erro ao atualizar registro:", error);
+                    });
                 }
+
+
+                oldEntrada.removeChild(newInputEntrada);
+                oldSaida.removeChild(newInputSaida);
+                btnSalvar.replaceWith(btnEditar);
             }
-
-            var data = {
-                entrada: newEntrada,
-                saida: newSaida
-            };
-
-            if (tipoTabela === 1) {
-                fetch("horarios?index=" + index, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(data)
-                }).then(response => {
-                    location.reload();
-                }).catch(error => {
-                    oldEntrada.removeChild(newInputEntrada);
-                    oldSaida.removeChild(newInputSaida);
-                    btnSalvar.replaceWith(btnEditar);
-                    console.error("Erro ao atualizar registro:", error);
-                });
-            } else {
-                fetch("marcacoes?index=" + index, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(data)
-                }).then(response => {
-                    location.reload();
-                }).catch(error => {
-                    oldEntrada.removeChild(newInputEntrada);
-                    oldSaida.removeChild(newInputSaida);
-                    btnSalvar.replaceWith(btnEditar);
-                    console.error("Erro ao atualizar registro:", error);
-                });
-            }
-
-
-            oldEntrada.removeChild(newInputEntrada);
-            oldSaida.removeChild(newInputSaida);
-            btnSalvar.replaceWith(btnEditar);
-        })
+        )
     }
 
     function remover(index, tipoTabela) {

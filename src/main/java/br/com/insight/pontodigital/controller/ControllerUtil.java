@@ -14,7 +14,7 @@ public class ControllerUtil {
             return false;
         }
 
-        if (entrada.compareTo(saida) >= 0) { //entrada após saída
+        if (entrada.compareTo(saida) >= 0 && saida.compareTo("12:00") >= 0) { //entrada após saída
             return false;
         }
 
@@ -25,13 +25,16 @@ public class ControllerUtil {
             existingEntrada = pb.getEntrada(); //entrada da linha atual
             existingSaida = pb.getSaida(); //saída da linha atual
 
-            if ((entrada.compareTo(existingEntrada) >= 0 && entrada.compareTo(existingSaida) <= 0) || //verificando entrada
+            if (existingEntrada.compareTo(existingSaida) > 0) {
+                if (entrada.compareTo(existingEntrada) > 0 || entrada.compareTo(saida) > 0) {
+                    return false;
+                }
+            } else if ((entrada.compareTo(existingEntrada) >= 0 && entrada.compareTo(existingSaida) <= 0) || //verificando entrada
                     (saida.compareTo(existingEntrada) >= 0 && saida.compareTo(existingSaida) <= 0) || //verificando saída
-                    (entrada.compareTo(existingEntrada) <= 0 && saida.compareTo(existingSaida) >= 0)) { //verificando entrada e saída
+                    (entrada.compareTo(existingEntrada) <= 0 && saida.compareTo(existingSaida) >= 0)) { //verificando entrada e saída)
                 return false;
             }
         }
-
         return true;
     }
 }
