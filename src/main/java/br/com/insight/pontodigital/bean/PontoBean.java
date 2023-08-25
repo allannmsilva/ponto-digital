@@ -6,19 +6,13 @@ public class PontoBean {
     private String entrada;
     private String saida;
     private Long tipoTabela;
-
-    public PontoBean() {
-    }
-
-    public PontoBean(String entrada, String saida) {
-        this.entrada = entrada;
-        this.saida = saida;
-    }
+    private final boolean mudaDia;
 
     public PontoBean(String entrada, String saida, Long tipoTabela) {
         this.entrada = entrada;
         this.saida = saida;
         this.tipoTabela = tipoTabela;
+        mudaDia = entrada.compareTo(saida) > 0;
     }
 
     public Long getCodigo() {
@@ -49,4 +43,7 @@ public class PontoBean {
         this.tipoTabela = tipoTabela;
     }
 
+    public boolean isMudaDia() {
+        return mudaDia;
+    }
 }
