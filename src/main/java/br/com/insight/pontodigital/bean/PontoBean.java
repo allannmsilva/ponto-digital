@@ -6,7 +6,11 @@ public class PontoBean {
     private String entrada;
     private String saida;
     private Long tipoTabela;
-    private final boolean mudaDia;
+    private boolean mudaDia;
+
+    public PontoBean() {
+
+    }
 
     public PontoBean(String entrada, String saida, Long tipoTabela) {
         this.entrada = entrada;
@@ -43,7 +47,7 @@ public class PontoBean {
         this.tipoTabela = tipoTabela;
     }
 
-    public boolean isMudaDia() {
+    public boolean mudaDia() {
         return mudaDia;
     }
 }
